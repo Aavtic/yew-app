@@ -1,0 +1,7 @@
+[build]
+dist = "dist"
+
+[[copy]]
+source = "assets/style.css"
+destination = "assets/style.css"
+
