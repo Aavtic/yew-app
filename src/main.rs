@@ -1,59 +1,84 @@
 use yew::prelude::*;
 
 enum Msg {
-    SayHi(String),
-    Submit,
+   Bold,
+   Italic,
+   Update(String)
 }
 
-struct Text {
-    msg: String,
-    greeting_msg: String,
+struct App {
+    input_value: String,
+    text: String,
+    html: Html,
 }
 
-impl Component for Text {
+impl Component for App {
     type Message = Msg;
     type Properties = ();
-
+    
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
-            msg: String::new(),
-            greeting_msg: String::new(),
+            input_value: String::new(),
+            text: String::new(),
+            html: Html::default(),
         }
     }
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Msg) -> bool {
         match msg {
-            Msg::SayHi(msg) => {
-                self.msg = msg;
+            Msg::Bold => {
+                self.text = self.input_value.clone();
+                self.html = html! {
+                    <b>{self.text.clone()}</b>
+                };
                 true
             },
-            Msg::Submit => {
-                self.greeting_msg = format!("Hi {}", self.msg);
+            Msg::Italic => {
+                self.text = self.input_value.clone();
+                self.html = html! {
+                    <i>{self.text.clone()}</i>
+                };
+                true
+            },
+            Msg::Update(msg) => {
+                self.input_value = msg;
                 true
             }
-
         }
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
+        let link = ctx.link();
+
         html! {
-            <div>
-                <input
-                    type="text"
-                    oninput={ctx.link().callback(|e: InputEvent| {
-                        let input = e.target_unchecked_into::<web_sys::HtmlInputElement>();
-                        Msg::SayHi(input.value())
-                    })}
-                    placeholder="Enter your name"
-                />
-                <button onclick={ctx.link().callback(|_| Msg::Submit)}>{"Submit"}</button>
-                <div>{ &self.greeting_msg }</div>
+            <div> 
+                <textarea 
+                rows="4" 
+                cols="50"
+                value={self.input_value.clone()}
+                oninput={
+                    link.callback(|e: InputEvent| {
+                        let textarea = e.target_unchecked_into::<web_sys::HtmlTextAreaElement>();
+                        Msg::Update(textarea.value())
+                    })
+                }> 
+                {self.input_value}
+                </textarea>
+            <br/>
+            <button onclick={link.callback(|_| Msg::Bold)}>
+            {"Bold"}
+            </button>
+            <button onclick={link.callback(|_| Msg::Italic)}>
+            {"Italic"}
+            </button>
+            <br/>
+            {self.html.clone()}
             </div>
         }
-    } 
+    }
 }
 
 fn main() {
-    yew::Renderer::<Text>::new().render();
+    yew::Renderer::<App>::new().render();
 }
 
